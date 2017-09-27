@@ -102,7 +102,7 @@ function C($name=null, $value=null,$default=null) {
 		if(IS_WIN){
 			fwrite(STDOUT, iconv('utf-8','gbk//IGNORE',$data));
 		}else{
-			fwrite($data);
+			fwrite(STDOUT,$data);
 		}
     }
 
