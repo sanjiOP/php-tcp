@@ -81,7 +81,7 @@ class rua{
 		}
 
         //加载文件
-		$file = WS_ROOT . $class . '.php';
+		$file = WS_ROOT . str_replace('\\','/',$class) . '.php';
 		if(is_file($file)){
 			include $file;
 			return true;
