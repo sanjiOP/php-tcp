@@ -1,4 +1,4 @@
 @echo
 E:
-cd E:\socket\tcp\app
+cd E:\php\php-socket\app
 php server.php

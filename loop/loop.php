@@ -24,6 +24,15 @@ abstract class loop extends event {
 
 
     /**
+     * 获取server
+     * @author liu.bin 2017/9/27 18:39
+     */
+    protected function get_server(){
+        return $this->server;
+    }
+
+
+    /**
      * 获取socket
      * @author liu.bin 2017/9/26 17:57
      */
@@ -59,4 +68,14 @@ abstract class loop extends event {
      * @author liu.bin 2017/9/26 18:14
      */
     abstract public function loop();
+
+
+
+    /**
+     * 关闭客户端连接
+     * @param $socket
+     * @return mixed
+     * @author liu.bin 2017/9/27 19:08
+     */
+    abstract public function close($socket);
 }

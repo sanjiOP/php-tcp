@@ -36,7 +36,10 @@ abstract class server extends event {
     protected $port = '';
 
 
-
+    /**
+     * @var
+     */
+    protected $loop;
 
     /**
      * server constructor.
@@ -73,7 +76,7 @@ abstract class server extends event {
      * @param string $type
      * @author liu.bin 2017/9/27 14:54
      */
-    public function addListener(string $host, int $port, $type = RUA_SOCK_TCP){
+    public function addListener($host, $port, $type = RUA_SOCK_TCP){
 
     }
 
@@ -86,7 +89,7 @@ abstract class server extends event {
      * @param string $type
      * @author liu.bin 2017/9/27 14:55
      */
-    public function listen(string $host, int $port, $type = RUA_SOCK_TCP){
+    public function listen($host, $port, $type = RUA_SOCK_TCP){
         $this->addListener($host, $port, $type);
     }
 
@@ -129,7 +132,8 @@ abstract class server extends event {
         $this->trigger(self::EVENT_START,array($this));
 
         //默认采用socket_select方式接收客户端连接
-        (new select($this))->loop();
+        $this->loop = new select($this);
+        $this->loop->loop();
 
     }
 
@@ -190,10 +194,12 @@ abstract class server extends event {
 
     /**
      * 关闭客户端连接
+     * @param $socket resource
      * @author liu.bin 2017/9/27 15:01
      */
-    public function close(){
-
+    public function close($socket){
+        $this->loop->close($socket);
+        socket_close($socket);
     }
 
 
@@ -229,7 +235,7 @@ abstract class server extends event {
      * @param int $fd
      * @author liu.bin 2017/9/27 15:05
      */
-    public function exist(int $fd){
+    public function exist($fd){
 
     }
 
@@ -239,7 +245,7 @@ abstract class server extends event {
      * @param int $fd
      * @author liu.bin 2017/9/27 15:06
      */
-    public function pause(int $fd){
+    public function pause($fd){
 
     }
 
@@ -249,7 +255,7 @@ abstract class server extends event {
      * @param int $fd
      * @author liu.bin 2017/9/27 15:06
      */
-    public function resume(int $fd){
+    public function resume($fd){
 
     }
 
@@ -269,7 +275,7 @@ abstract class server extends event {
      * @param int $fd
      * @author liu.bin 2017/9/27 15:07
      */
-    public function connection_info(int $fd){
+    public function connection_info($fd){
 
     }
 

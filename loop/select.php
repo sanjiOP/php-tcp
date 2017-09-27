@@ -15,12 +15,28 @@ class select extends loop {
 
 
 
-
     /**
      * 所有的客户端链接
      * @var array
      */
-    private $sockets = [];
+    public $sockets = [];
+
+    public $master_socket;
+
+
+
+
+
+    public function __construct($server)
+    {
+        parent::__construct($server);
+        $this->master_socket    = $this->get_socket();
+        $this->sockets[]        = $this->master_socket;
+    }
+
+
+
+
 
 
     /**
@@ -30,11 +46,15 @@ class select extends loop {
     public function loop()
     {
 
-        $this->sockets[]    = $this->get_socket();
         $protocol           = $this->get_protocol();
-
+        $server             = $this->get_server();
         while(true){
 
+
+
+            foreach ($this->sockets as $pre){
+                console('before sockets :' . $pre);
+            }
 
             /**
              * socket_select 此处会阻塞，不会往下执行，同时会监听客户端的链接状态
@@ -51,21 +71,23 @@ class select extends loop {
              */
             @socket_select($this->sockets,$write=NULL,$except=NULL,NULL);
 
-
+            foreach ($this->sockets as $af){
+                console('after sockets :' . $af);
+            }
 
             foreach($this->sockets as $socket){
 
 
-                if($socket == $this->get_socket()){
+                if($socket == $this->master_socket){
 
                     //接受客户端链接（创建新的客户端 socket）
-                    $client_socket = socket_accept($this->get_socket());
+                    $client_socket = socket_accept($this->master_socket);
 
                     //保存到socket列表
-                    $this->sockets[] = $client_socket;
+                    $this->add($client_socket);
 
                     //触发连接事件
-                    $this->trigger(self::EVENT_CONNECT,array(\rua::server(),$socket));
+                    $this->trigger(self::EVENT_CONNECT,array($server,$client_socket));
 
                 }else{
 
@@ -75,24 +97,42 @@ class select extends loop {
                     if(false === $receive_data){
 
                         //触发关闭事件
-                        $this->trigger(self::EVENT_CLOSE,array(\rua::server(),$socket));
+                        $this->trigger(self::EVENT_CLOSE,array($server,$socket));
+                        $this->get_server()->close($socket);
+
                     }else{
                         //触发接收消息事件
-                        $this->trigger(self::EVENT_RECEIVE,array(\rua::server(),$socket,$receive_data));
+                        $this->trigger(self::EVENT_RECEIVE,array($server,$socket,$receive_data));
                     }
-                    break;
+
+
                 }
 
             }
-
-
-
 
         }
 
 
     }
 
+
+    /**
+     * 关闭客户端连接
+     * @param $socket
+     * @return mixed
+     * @author liu.bin 2017/9/27 19:08
+     */
+    public function close($socket){
+        $key = array_search($socket, $this->sockets);
+        if(false !== $key ){
+            unset($this->sockets[$key]);
+        }
+    }
+
+
+    public function add($socket){
+        $this->sockets[] = $socket;
+    }
 
 
 }
