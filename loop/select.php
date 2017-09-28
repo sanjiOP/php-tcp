@@ -121,7 +121,6 @@ class select extends loop {
                     $receive_data = $protocol->input($socket);
                     $connect = queue::findConnBySocket($socket);
 
-
                     if(false === $receive_data){
 
                         //触发关闭事件

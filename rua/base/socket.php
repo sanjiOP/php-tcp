@@ -42,7 +42,6 @@ class socket extends event implements interfaceSocket
 
 
         if(!is_null($socket)){
-            console('socket_accept()');
             $this->socket = socket_accept($socket);
         }else{
             $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
