@@ -3,9 +3,12 @@ namespace server;
 
 
 use loop\select;
-use rua\base\event;
+use rua\base\interfaceSocket;
+use rua\base\socket;
+use server\connect\connect;
+use server\queue\queue;
 
-abstract class server extends event {
+abstract class server extends socket {
 
 
 
@@ -165,6 +168,24 @@ abstract class server extends event {
     }
 
 
+
+    /**
+     * 关闭客户端连接
+     * @param interfaceSocket $conn
+     * @return bool
+     * @author liu.bin 2017/9/28 14:35
+     */
+    public function close($conn){
+
+        if(!($conn instanceof interfaceSocket)){
+            return false;
+        }
+        socket_close($conn->getSocket());
+        queue::remove($conn);
+        unset($conn);
+    }
+
+
     /**
      * 定时器
      * @author liu.bin 2017/9/27 14:59
@@ -189,17 +210,6 @@ abstract class server extends event {
      */
     public function clearTimer(){
 
-    }
-
-
-    /**
-     * 关闭客户端连接
-     * @param $socket resource
-     * @author liu.bin 2017/9/27 15:01
-     */
-    public function close($socket){
-        $this->loop->close($socket);
-        socket_close($socket);
     }
 
 
@@ -310,13 +320,6 @@ abstract class server extends event {
 
 
     /**
-     * 套接字
-     * @var
-     */
-    public $socket;
-
-
-    /**
      * 获取socket套接字
      * @author liu.bin 2017/9/27 15:13
      */
@@ -325,23 +328,7 @@ abstract class server extends event {
     }
 
 
-    /**
-     * 创建socket套接字
-     * @param int $socket_type
-     * @return bool
-     * @author liu.bin 2017/9/27 15:25
-     */
-    private function create_socket($socket_type=SOL_TCP){
 
-        $socket = socket_create(AF_INET, SOCK_STREAM, $socket_type);
-        if($socket < 0){
-            $this->error = 'socket_create() failed';
-            $this->error_code = 1001;
-            return false;
-        }
-        $this->socket = $socket;
-        return true;
-    }
 
 
 
@@ -350,7 +337,8 @@ abstract class server extends event {
      * @author liu.bin 2017/9/27 15:35
      */
     private function start_socket(){
-        $this->create_socket();
+
+        $this->create(null);
         socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
         $bind = socket_bind($this->socket, $this->host, $this->port);

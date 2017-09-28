@@ -53,23 +53,20 @@ class tcp extends protocol
 
         //接收客户端消息
         if(empty(socket_recv($socket,$this->buffer,$this->buffer_size,0))){
-            $this->logout_flag = true;
+            $this->receive_data = '';
+            $this->buffer = '';
+            return false;
         }
 
         $this->buffer = $this->decode($this->buffer);
         $this->receive_data = $this->buffer;
 
+        $data = $this->receive_data;
+        $this->receive_data = '';
+        $this->buffer = '';
+        return $data;
 
-        if($this->logout_flag){
-            $this->receive_data = '';
-            $this->buffer = '';
-            return false;
-        }else{
-            $data = $this->receive_data;
-            $this->receive_data = '';
-            $this->buffer = '';
-            return $data;
-        }
+
     }
 
 
