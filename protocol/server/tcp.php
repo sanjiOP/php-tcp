@@ -59,7 +59,7 @@ class tcp extends protocol
         $this->buffer = $this->decode($this->buffer);
         $this->receive_data = $this->buffer;
 
-
+        //console('receive ing... :' . $this->receive_data);
         if($this->logout_flag){
             $this->receive_data = '';
             $this->buffer = '';

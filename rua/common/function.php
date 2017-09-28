@@ -52,6 +52,20 @@ function get_client_ip($type = 0) {
 
 
 /**
+ * 抓取数字
+ * @param $socket
+ * @return mixed
+ * @author liu.bin 2017/9/28 10:47
+ */
+function socket_id($socket)
+{
+    return preg_replace('/\D/s', '', $socket);
+}
+
+
+
+
+/**
  * 获取和设置配置参数 支持批量定义
  * @param string|array $name 配置变量
  * @param mixed $value 配置值
