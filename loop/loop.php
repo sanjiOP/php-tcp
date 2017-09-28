@@ -13,7 +13,7 @@ use server\server;
 abstract class loop extends event {
 
 
-    private $server;
+    public $server;
 
 
 

@@ -313,7 +313,7 @@ abstract class server extends event {
      * 套接字
      * @var
      */
-    protected $socket;
+    public $socket;
 
 
     /**
