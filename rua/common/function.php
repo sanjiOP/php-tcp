@@ -57,7 +57,7 @@ function get_client_ip($type = 0) {
  * @return mixed
  * @author liu.bin 2017/9/28 10:47
  */
-function socket_id($socket)
+function socket_to_fd($socket)
 {
     return preg_replace('/\D/s', '', $socket);
 }

@@ -119,12 +119,10 @@ class rua{
     /**
      * 客户端 对象
      * @param $client
-     * @param $host
-     * @param $port
      * @return mixed
      * @author liu.bin 2017/9/27 14:51
      */
-    static public function client($client='',$host='',$port=0){
+    static public function client($client=''){
 
         if(!self::$is_init){
             rua::init();
@@ -135,7 +133,7 @@ class rua{
             return self::$client;
         }else{
             $class = '\server\\'.$client;
-            self::$client = new $class($host,$port);
+            self::$client = new $class();
             return self::$client;
         }
 

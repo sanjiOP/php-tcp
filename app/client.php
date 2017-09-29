@@ -11,38 +11,49 @@ $dir = dirname(__DIR__);
 require $dir . '/rua/rua.php';
 
 // tcp客户端
-$server = rua::server('tcp_server','127.0.0.1',5000);
+$client = rua::client('tcp_client');
 
 
 /**
- * 开启
+ * 客户端开启
  */
-$server->on('start',function ($server){
-    console('server : 【'. $server .'】 start');
+$client->on('start',function ($client){
+    console('server : 【'. $client .'】 start');
 });
 
 
 /**
  * 客户端连接
  */
-$server->on('connect',function ($server, $fd){
-    console('client connect : 【' . $fd.'】');
+$client->on('connect',function ($client){
+    console('client connect : 【' . $client.'】');
 });
+
 
 
 /**
  * 客户端接收消息
  */
-$server->on('receive',function ($server, $fd, $data){
-    console('【' . $fd . '】 say : ' . $data);
+$client->on('receive',function ($client, $data){
+    console('【' . $client . '】 say : ' . $data);
 });
 
 
 /**
  * 客户端断开
  */
-$server->on('close',function ($server, $fd){
-    console('client ' .$fd. ' close');
+$client->on('close',function ($client){
+    console('client ' .$client. ' close');
 });
 
-$server->start();
+
+$connect = $client->connect('127.0.0.1',5000);
+
+
+while ($connect){
+    //此处阻塞
+    $data = $protocol->in();
+    $client->send($this->clientSocket,$data);
+    $mess = socket_read($this->clientSocket,1024);
+    console('recv data from server : ' . $mess);
+}

@@ -63,13 +63,9 @@ class select extends loop {
             @socket_select($change_socket_queue,$write=NULL,$except=NULL,NULL);
 
 
-
             foreach($change_socket_queue as $socket){
 
                 if($socket == $this->master_socket){
-
-
-
 
                     //接受客户端链接（创建新的客户端 socket）
                     $connect = new connect($this->server);
@@ -77,7 +73,7 @@ class select extends loop {
                     //加入链接队列
                     if(queue::add($connect)){
                         //触发连接事件
-                        $this->trigger(self::EVENT_CONNECT,array($server,$connect));
+                        $this->trigger(self::EVENT_CONNECT,array($server,$connect->getId()));
                     }else{
                         unset($connect);
                     }
@@ -91,13 +87,13 @@ class select extends loop {
 
                     if(empty($receive_data) || connect::STATUS_CLOSE == $connect->getStatus()){
                         //触发关闭事件
-                        $this->trigger(self::EVENT_CLOSE,array($server,$connect));
-                        $this->get_server()->close($connect);
+                        $this->trigger(self::EVENT_CLOSE,array($server,$connect->getId()));
+                        $this->get_server()->close($connect->getId());
                         break;
                     }
 
                     //触发接收消息事件
-                    $this->trigger(self::EVENT_RECEIVE,array($server,$connect,$receive_data));
+                    $this->trigger(self::EVENT_RECEIVE,array($server,$connect->getId(),$receive_data));
 
                 }
             }

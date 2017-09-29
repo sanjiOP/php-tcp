@@ -39,7 +39,11 @@ abstract class client extends socket
      */
     public function __construct()
     {
+        //创建 socket
+        $this->create(null);
 
+        //触发启动事件
+        $this->trigger(self::EVENT_START,array($this));
     }
 
 
@@ -68,17 +72,20 @@ abstract class client extends socket
 
 
 
-
     /**
-     * 启动客户端
-     * @author liu.bin 2017/9/27 14:56
+     * 连接服务器
+     * @param $host
+     * @param $port
+     * @return bool
+     * @author liu.bin 2017/9/29 11:22
      */
-    public function start(){
+    public function connect($host,$port){
 
+        $this->host = $host;
+        $this->port = $port;
 
-        $result = $this->start_socket();
-
-        if(false === $result){
+        //检测socket
+        if(is_null($this->socket) || empty($this->socket)){
             return false;
         }
 
@@ -86,14 +93,23 @@ abstract class client extends socket
         //初始化服务器信息
         $this->init();
 
+        //链接服务器
+        $connect = socket_connect($this->socket, $this->host, $this->port);
+        if (!$connect) {
+            $this->error = "socket_connect() failed, reason: " . socket_strerror($connect);
+            return false;
+        }
+
+        $this->isConnected = true;
+
         //展示ui
         $this->displayUI();
 
 
-        //触发事件
-        $this->trigger(self::EVENT_START,array($this));
+        //触发链接事件
+        $this->trigger(self::EVENT_CONNECT,array($this));
 
-
+        return true;
     }
 
 
@@ -130,13 +146,12 @@ abstract class client extends socket
 
     /**
      * 发送消息到服务端
-     * @param int $fd
      * @param string $data
-     * @param int $extraData
      * @author liu.bin 2017/9/27 15:02
      */
-    public function send($fd, $data, $extraData = 0){
+    public function send($data){
 
+        socket_write($this->socket,$data,strlen($data));
     }
 
 
@@ -191,40 +206,6 @@ abstract class client extends socket
     }
 
 
-
-
-
-
-    /**
-     * socket开启
-     * @author liu.bin 2017/9/27 15:35
-     */
-    private function start_socket(){
-
-        $this->create(null);
-
-    }
-
-
-    /**
-     * 连接服务器
-     * @param $host
-     * @param $port
-     * @return bool
-     * @author liu.bin 2017/9/29 11:22
-     */
-    public function connect($host,$port){
-
-        $this->host = $host;
-        $this->port = $port;
-        $connect = socket_connect($this->socket, $this->host, $this->port);
-        if (!$connect) {
-            $this->error = "socket_connect() failed, reason: " . socket_strerror($connect);
-            return false;
-        }
-        $this->isConnected = true;
-        return true;
-    }
 
 
     /**
