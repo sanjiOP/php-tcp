@@ -38,7 +38,9 @@ abstract class protocol extends error
      * @author liu.bin 2017/9/29 14:42
      */
     public function get_buffer(){
-	    return $this->decode($this->buffer);
+        $buffer = $this->decode($this->buffer);
+        $this->buffer = '';
+	    return $buffer;
     }
 
 
