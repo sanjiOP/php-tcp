@@ -71,7 +71,7 @@ class socket extends event implements interfaceSocket
             return false;
         }
         $this->socket = $socket;
-        $this->id = socket_id($this->socket);
+        $this->id = socket_to_fd($this->socket);
         if(!is_numeric($this->id) || $this->id <= 0){
             return false;
         }

@@ -132,7 +132,7 @@ class rua{
         if(self::$client){
             return self::$client;
         }else{
-            $class = '\server\\'.$client;
+            $class = '\client\\'.$client;
             self::$client = new $class();
             return self::$client;
         }

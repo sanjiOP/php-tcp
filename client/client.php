@@ -150,7 +150,6 @@ abstract class client extends socket
      * @author liu.bin 2017/9/27 15:02
      */
     public function send($data){
-
         socket_write($this->socket,$data,strlen($data));
     }
 
@@ -171,14 +170,17 @@ abstract class client extends socket
 
 
 
-
-
+    /**
+     * 客户端接收服务端消息: socket_read
+     * 服务端接收客户端消息: socket_recv
+     * @return string
+     * @author liu.bin 2017/9/29 16:59
+     */
     public function receive(){
-        //客户端接收消息：socket_read
-        socket_read($this->socket,1024);
-
-
-        //服务店接收消息：socket_recv
+        $mess = socket_read($this->socket,1024);
+        $mess = empty($mess) ? '' : $mess;
+        $this->trigger(self::EVENT_RECEIVE,array($this,$mess));
+        return $mess;
     }
 
 

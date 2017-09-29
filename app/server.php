@@ -27,6 +27,7 @@ $server->on('start',function ($server){
  */
 $server->on('connect',function ($server, $fd){
     console('client connect : 【' . $fd.'】');
+    $server->send('hello : '.$fd,$fd);
 });
 
 
@@ -34,7 +35,9 @@ $server->on('connect',function ($server, $fd){
  * 客户端接收消息
  */
 $server->on('receive',function ($server, $fd, $data){
-    console('【' . $fd . '】 say : ' . $data);
+    console('send data : ' . $data);
+    $server->send('say : ' . $data,$fd);
+
 });
 
 
