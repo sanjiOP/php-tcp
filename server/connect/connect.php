@@ -90,7 +90,7 @@ class connect extends socket {
             //读取消息
             socket_recv($this->socket,$buffer,$buffer_size,0);
 
-            if ($buffer === '' || $buffer === false) {
+            if (empty($buffer) || $buffer === '' || $buffer === false) {
                 $this->setStatus(self::STATUS_CLOSE);
                 $end = true;
             }

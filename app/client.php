@@ -11,7 +11,7 @@ $dir = dirname(__DIR__);
 require $dir . '/rua/rua.php';
 
 // tcp客户端
-$client = rua::client('tcp_client','client');
+$client = rua::client('text_client');
 
 
 /**
@@ -83,6 +83,7 @@ while ($connect){
 
 
     if($send_data){
+        $send_data = $protocol->encode($send_data);
         $client->send($send_data);
     }
 

@@ -11,7 +11,7 @@ $dir = dirname(__DIR__);
 require $dir . '/rua/rua.php';
 
 // tcp服务器
-$server = rua::server('tcp_server','127.0.0.1',5000);
+$server = rua::server('text_server','127.0.0.1',5000);
 
 
 /**
