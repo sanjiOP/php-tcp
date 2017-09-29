@@ -16,7 +16,7 @@ class tcp extends protocol
      * @param $buffer string
      * @return string
      * */
-    protected function decode($buffer){
+    public function decode($buffer){
         $buffer = str_replace(PHP_EOL, '', $buffer);
         return $buffer;
 	}
@@ -26,47 +26,23 @@ class tcp extends protocol
      * @param $buffer string
      * @return string
      * */
-    protected function encode($buffer){
+    public function encode($buffer){
         $buffer = str_replace(PHP_EOL, '', $buffer);
 		return $buffer;
 	}
 
 
 
-    /**
-     * 数据输出
-     */
-    public function output(){
-        return $this->receive_data;
-    }
-
-
 
     /**
-     * 数据输入
-     * 阻塞函数
-     * @param $socket resource|null 客户端socket
-     * @return bool|string
+     * 是否继续读取buffer
+     * @param string $buffer
+     * @return mixed
+     * @author liu.bin 2017/9/29 14:37
      */
-    public function input($socket=null)
-    {
-
-        //接收客户端消息
-        if(empty(socket_recv($socket,$this->buffer,$this->buffer_size,0))){
-            $this->receive_data = '';
-            $this->buffer = '';
-            return false;
-        }
-
-        $this->buffer = $this->decode($this->buffer);
-        $this->receive_data = $this->buffer;
-
-        $data = $this->receive_data;
-        $this->receive_data = '';
-        $this->buffer = '';
-        return $data;
-
-
+	public function on_read_buffer($buffer=''){
+	    $this->buffer = $buffer;
+        return false;
     }
 
 

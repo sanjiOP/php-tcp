@@ -3,11 +3,19 @@ namespace server;
 
 
 use loop\select;
-use rua\base\interfaceSocket;
 use rua\base\socket;
-use server\connect\connect;
 use server\queue\queue;
+use rua\base\interfaceSocket;
 
+
+/**
+ * Class server
+ * @package server
+ *
+ *
+ * 服务器消息由轮训或事件触发自动接收，采用自定义协议处理数据包，通过回调通知应用程序
+ *
+ */
 abstract class server extends socket {
 
 
@@ -40,6 +48,14 @@ abstract class server extends socket {
 
 
     /**
+     * 消息协议
+     * @var
+     */
+    protected $protocol;
+
+
+    /**
+     * 轮询事件
      * @var
      */
     protected $loop;
