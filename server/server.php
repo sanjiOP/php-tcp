@@ -3,9 +3,20 @@ namespace server;
 
 
 use loop\select;
-use rua\base\event;
+use rua\base\socket;
+use server\queue\queue;
+use rua\base\interfaceSocket;
 
-abstract class server extends event {
+
+/**
+ * Class server
+ * @package server
+ *
+ *
+ * 服务器消息由轮训或事件触发自动接收，采用自定义协议处理数据包，通过回调通知应用程序
+ *
+ */
+abstract class server extends socket {
 
 
 
@@ -37,6 +48,14 @@ abstract class server extends event {
 
 
     /**
+     * 消息协议
+     * @var
+     */
+    protected $protocol;
+
+
+    /**
+     * 轮询事件
      * @var
      */
     protected $loop;
@@ -165,6 +184,25 @@ abstract class server extends event {
     }
 
 
+
+    /**
+     * 关闭客户端连接
+     * @param int $fd
+     * @return bool
+     * @author liu.bin 2017/9/28 14:35
+     */
+    public function close($fd){
+
+        $connect = queue::findConnByFd($fd);
+        if(!($connect instanceof interfaceSocket)){
+            return false;
+        }
+        socket_close($connect->getSocket());
+        queue::remove($connect);
+        unset($connect);
+    }
+
+
     /**
      * 定时器
      * @author liu.bin 2017/9/27 14:59
@@ -193,25 +231,19 @@ abstract class server extends event {
 
 
     /**
-     * 关闭客户端连接
-     * @param $socket resource
-     * @author liu.bin 2017/9/27 15:01
-     */
-    public function close($socket){
-        $this->loop->close($socket);
-        socket_close($socket);
-    }
-
-
-    /**
      * 发送消息到客户端
-     * @param int $fd
      * @param string $data
-     * @param int $extraData
+     * @param int $fd
+     * @return bool
      * @author liu.bin 2017/9/27 15:02
      */
-    public function send($fd, $data, $extraData = 0){
-
+    public function send($data,$fd){
+        $connect = queue::findConnByFd($fd);
+        if($connect){
+            socket_write($connect->getSocket(),$data,strlen($data));
+            return true;
+        }
+        return false;
     }
 
 
@@ -310,13 +342,6 @@ abstract class server extends event {
 
 
     /**
-     * 套接字
-     * @var
-     */
-    public $socket;
-
-
-    /**
      * 获取socket套接字
      * @author liu.bin 2017/9/27 15:13
      */
@@ -325,23 +350,7 @@ abstract class server extends event {
     }
 
 
-    /**
-     * 创建socket套接字
-     * @param int $socket_type
-     * @return bool
-     * @author liu.bin 2017/9/27 15:25
-     */
-    private function create_socket($socket_type=SOL_TCP){
 
-        $socket = socket_create(AF_INET, SOCK_STREAM, $socket_type);
-        if($socket < 0){
-            $this->error = 'socket_create() failed';
-            $this->error_code = 1001;
-            return false;
-        }
-        $this->socket = $socket;
-        return true;
-    }
 
 
 
@@ -350,7 +359,8 @@ abstract class server extends event {
      * @author liu.bin 2017/9/27 15:35
      */
     private function start_socket(){
-        $this->create_socket();
+
+        $this->create(null);
         socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
         $bind = socket_bind($this->socket, $this->host, $this->port);

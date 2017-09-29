@@ -70,12 +70,4 @@ abstract class loop extends event {
     abstract public function loop();
 
 
-
-    /**
-     * 关闭客户端连接
-     * @param $socket
-     * @return mixed
-     * @author liu.bin 2017/9/27 19:08
-     */
-    abstract public function close($socket);
 }
