@@ -36,6 +36,7 @@ $server->on('connect',function ($server, $fd){
  */
 $server->on('receive',function ($server, $fd, $data){
     console('send data : ' . $data);
+    $data = $server->getProtocol()->encode($data);
     $server->send('say : ' . $data,$fd);
 
 });

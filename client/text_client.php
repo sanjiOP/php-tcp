@@ -3,9 +3,9 @@
 
 namespace client;
 
-use protocol\client\tcp;
+use protocol\client\text;
 
-class tcp_client extends client
+class text_client extends client
 {
 
 
@@ -21,7 +21,7 @@ class tcp_client extends client
      */
     public function getProtocol(){
         if(!$this->protocol){
-            $this->protocol = new tcp();
+            $this->protocol = new text();
         }
         return $this->protocol;
     }

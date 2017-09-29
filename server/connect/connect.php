@@ -89,6 +89,7 @@ class connect extends socket {
 
             //读取消息
             socket_recv($this->socket,$buffer,$buffer_size,0);
+
             if ($buffer === '' || $buffer === false) {
                 $this->setStatus(self::STATUS_CLOSE);
                 $end = true;
@@ -98,7 +99,6 @@ class connect extends socket {
             if(!$protocol->on_read_buffer($buffer)){
                 $end = true;
             }
-
             //读取完整消息
             $receive_data .= $protocol->get_buffer();
         }

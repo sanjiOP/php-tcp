@@ -41,9 +41,14 @@ class tcp extends protocol
      * @author liu.bin 2017/9/29 14:37
      */
 	public function on_read_buffer($buffer=''){
-	    $this->buffer = $buffer;
+
+	    $length = strlen($buffer);
+	    if( $length > $this->buffer_size ){
+	        $this->buffer = substr($buffer,0,$this->buffer_size);
+        }else{
+            $this->buffer = $buffer;
+        }
         return false;
     }
-
 
 }

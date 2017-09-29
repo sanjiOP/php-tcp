@@ -49,12 +49,41 @@ $client->on('close',function ($client){
 
 $connect = $client->connect('127.0.0.1',5000);
 
+$protocol = $client->getProtocol();
+
 
 while ($connect){
 
+
+    //连接成功后，接收消息
     $client->receive();
 
-    //此处阻塞
-    $data = fgets(STDIN);
-    $client->send($data);
+    $buffer_size = $protocol->get_buffer_size();
+    $send_data = '';
+
+    $end = false;//是否继续输入
+
+    while(!$end){
+
+        //此处阻塞
+        $buffer = fgets(STDIN);
+
+        if ($buffer === '' || $buffer === false) {
+            break;
+        }
+
+        //是否继续输入消息
+        if(!$protocol->on_read_buffer($buffer)){
+            $end = true;
+        }
+
+        //读取完整消息
+        $send_data .= $protocol->get_buffer();
+    }
+
+
+    if($send_data){
+        $client->send($send_data);
+    }
+
 }
