@@ -8,15 +8,12 @@
 
 namespace server;
 
-use protocol\server\tcp;
+use protocol\server\length;
 
-class tcp_server extends server {
+class length_server extends server {
 
 
     const VERSION = '0.0.1';
-
-
-
 
 
     /**
@@ -28,7 +25,7 @@ class tcp_server extends server {
         if($this->protocol){
             return $this->protocol;
         }else{
-            $this->protocol = new tcp();
+            $this->protocol = new length();
             return $this->protocol;
         }
     }
@@ -46,10 +43,10 @@ class tcp_server extends server {
         {
             return;
         }
-        echo "----------------------- RUA SOCKET SERVER-----------------------------".PHP_EOL;
-        echo "Rua SERVER version:" . self::VERSION .PHP_EOL;
+        echo "----------------------- RUA SOCKET SERVER -----------------------------".PHP_EOL;
+        echo "Rua Server version:" . self::VERSION .PHP_EOL;
         echo "PHP version:" . PHP_VERSION .PHP_EOL;
-        echo "socket listen tcp://".$this->host. ":" .$this->port ." status [ok]".PHP_EOL;
+        echo "socket listen length://".$this->host. ":" .$this->port ." status [ok]".PHP_EOL;
         echo "----------------------------------------------------------------".PHP_EOL;
         echo "Press Ctrl-C to quit. Start success.".PHP_EOL;
     }

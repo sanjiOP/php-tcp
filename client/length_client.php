@@ -1,19 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2017/9/26
- * Time: 10:52
- */
 
-namespace server;
 
-use protocol\server\text;
+namespace client;
 
-class text_server extends server {
+use protocol\client\length;
+
+class length_client extends client
+{
 
 
     const VERSION = '0.0.1';
+
+
+    protected $protocol;
 
 
     /**
@@ -21,13 +20,10 @@ class text_server extends server {
      * @author liu.bin 2017/9/27 16:44
      */
     public function getProtocol(){
-
-        if($this->protocol){
-            return $this->protocol;
-        }else{
-            $this->protocol = new text();
-            return $this->protocol;
+        if(!$this->protocol){
+            $this->protocol = new length();
         }
+        return $this->protocol;
     }
 
 
@@ -43,12 +39,17 @@ class text_server extends server {
         {
             return;
         }
-        echo "----------------------- RUA SOCKET SERVER -----------------------------".PHP_EOL;
-        echo "Rua Server version:" . self::VERSION .PHP_EOL;
+        echo "----------------------- RUA SOCKET CLIENT-----------------------------".PHP_EOL;
+        echo "Rua client version:" . self::VERSION .PHP_EOL;
         echo "PHP version:" . PHP_VERSION .PHP_EOL;
-        echo "socket listen text://".$this->host. ":" .$this->port ." status [ok]".PHP_EOL;
+        echo "socket connect ".$this->host. ":" .$this->port ." status [ok]".PHP_EOL;
         echo "----------------------------------------------------------------".PHP_EOL;
         echo "Press Ctrl-C to quit. Start success.".PHP_EOL;
     }
 
+
+
+
+
 }
+
