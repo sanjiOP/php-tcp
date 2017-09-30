@@ -35,7 +35,7 @@ class rua{
             die('must cli run');
         }
 
-
+        date_default_timezone_set("Asia/Shanghai");
 
         // 注册AUTOLOAD方法
         spl_autoload_register('\rua::autoload');
