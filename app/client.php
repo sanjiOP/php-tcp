@@ -11,7 +11,7 @@ $dir = dirname(__DIR__);
 require $dir . '/rua/rua.php';
 
 // tcp客户端
-$client = rua::client('text_client');
+$client = rua::client('length_client');
 
 
 /**
@@ -76,6 +76,9 @@ while ($connect){
             break;
         }
 
+        //固定包头包体专用
+        $buffer = $protocol->encode($buffer);
+
 
         //是否继续接收消息:true 继续读取，false:读取结束
         if(!$protocol->read_buffer($buffer)){
@@ -84,11 +87,10 @@ while ($connect){
     }
 
     $send_data = $protocol->getInData();
-    if($send_data){
-        console('马上 send：' .$send_data);
+    if($send_data !== ''){
         $client->send($send_data);
     }else{
-        console('马上 send ?? ：' .$send_data);
+        console('没有消息 ：' .$send_data);
         $receive = false;
     }
 

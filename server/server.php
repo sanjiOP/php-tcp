@@ -243,9 +243,6 @@ abstract class server extends socket {
         $data = $protocol->encode($data);
         $connect = queue::findConnByFd($fd);
         if($connect){
-
-            console('send data protocol:' . $data);
-
             socket_write($connect->getSocket(),$data,strlen($data));
             return true;
         }

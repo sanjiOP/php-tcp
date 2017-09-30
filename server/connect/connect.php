@@ -91,7 +91,7 @@ class connect extends socket {
             //读取消息
             socket_recv($this->socket,$buffer,$buffer_size,0);
 
-            if (empty($buffer) || $buffer === '' || $buffer === false) {
+            if ($buffer === '' || $buffer === false) {
                 $this->setStatus(self::STATUS_CLOSE);
                 break;
             }
@@ -100,7 +100,6 @@ class connect extends socket {
             if(!$protocol->read_buffer($buffer)){
                 break;
             }
-            console('receive ing....'.$buffer,'receive ing');
         }
 
         //读取完整消息

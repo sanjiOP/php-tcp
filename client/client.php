@@ -201,7 +201,6 @@ abstract class client extends socket
 
         }
         $receive_data = $protocol->getInData();
-        console('完整数据：'. $receive_data);
         $this->trigger(self::EVENT_RECEIVE,array($this,$receive_data));
         return true;
     }

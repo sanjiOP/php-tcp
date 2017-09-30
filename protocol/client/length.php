@@ -1,9 +1,9 @@
 <?php
-namespace protocol\server;
+namespace protocol\client;
 
 
 
-class length extends serverProtocol
+class length extends clientProtocol
 {
 
 
@@ -34,7 +34,7 @@ class length extends serverProtocol
 
 
 
-	/**
+    /**
      * 数据解包
      * @param $mess string
      * @return string
@@ -42,7 +42,7 @@ class length extends serverProtocol
     public function decode($mess){
         $mess = str_replace(PHP_EOL, '', $mess);
         return $mess;
-	}
+    }
 
 
 
@@ -55,8 +55,8 @@ class length extends serverProtocol
     public function encode($mess){
         $mess = str_replace(PHP_EOL, '', $mess);
         $head = pack('N',strlen($mess));
-		return $head . $mess;
-	}
+        return $head . $mess;
+    }
 
 
 
@@ -68,7 +68,7 @@ class length extends serverProtocol
      * @return bool false:不需要继续接收消息 ，true:继续接收消息
      * @author liu.bin 2017/9/29 14:37
      */
-    public function read_buffer($buffer=''){
+	public function read_buffer($buffer=''){
 
         //消息格式不正确
         if('' === $buffer || is_null($buffer)){
@@ -81,7 +81,7 @@ class length extends serverProtocol
         //如果输入的字节 >= 最大长度的话，数据错误，数据重置
         if($this->in_size >= $this->max_in_length){
             $this->over();
-            console('---');
+            console('+++++');
             return false;
         }
 
@@ -94,12 +94,12 @@ class length extends serverProtocol
 
 
         //第一次读取消息
-        if($this->first_read){
+	    if($this->first_read){
 
             $this->buffer = $this->decode($buffer);//11
 
             //获取头部
-            $head = substr($buffer,0,$this->head_size);
+	        $head = substr($buffer,0,$this->head_size);
 
             if(empty($head)){
                 return false;
@@ -111,7 +111,7 @@ class length extends serverProtocol
 
             //获取body
             $body = substr($buffer,$this->head_size);
-            $this->first_read = false;
+	        $this->first_read = false;
 
         }else{
 
@@ -120,7 +120,7 @@ class length extends serverProtocol
         }
 
 
-        $this->in_data .= $body;
+	    $this->in_data .= $body;
         $this->in_size += strlen($body);
 
         //是否还有剩余数据没有接收：$left_length 还剩多少长度没有接收（第一次：$this->in_size==0）

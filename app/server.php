@@ -11,7 +11,7 @@ $dir = dirname(__DIR__);
 require $dir . '/rua/rua.php';
 
 // tcp服务器
-$server = rua::server('text_server','127.0.0.1',5000);
+$server = rua::server('length_server','127.0.0.1',5000);
 
 
 /**
@@ -33,12 +33,11 @@ $server->on('connect',function ($server, $fd){
 
 
 /**
- * 客户端接收消息
+ * 接收客户端消息
  */
 $server->on('receive',function ($server, $fd, $data){
-    console('send data : ' . $data);
-    $server->send('say : ' . $data,$fd);
-
+    console('server send :'.$data);
+    $server->send('server send : ' . $data,$fd);
 });
 
 
