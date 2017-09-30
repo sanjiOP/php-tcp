@@ -81,30 +81,32 @@ class connect extends socket {
     public function receive(){
 
         $protocol = $this->server->getProtocol();
-        $buffer_size = $protocol->get_buffer_size();
-        $receive_data = '';
-        $end = false;
+        $buffer = '';
 
-        while(!$end){
+        while(true){
+
+            //获取buffer_size ,固定包头+包体的协议中，buffer_size会变化；边界检测的协议，buffer_size固定
+            $buffer_size = $protocol->get_buffer_size();
 
             //读取消息
             socket_recv($this->socket,$buffer,$buffer_size,0);
 
-            if (empty($buffer) || $buffer === '' || $buffer === false) {
+            if ($buffer === '' || $buffer === false) {
                 $this->setStatus(self::STATUS_CLOSE);
-                $end = true;
+                break;
             }
 
-            //是否继续接收消息
-            if(!$protocol->on_read_buffer($buffer)){
-                $end = true;
+            //是否继续接收消息:true 继续读取，false:读取结束
+            if(!$protocol->read_buffer($buffer)){
+                break;
             }
-            //读取完整消息
-            $receive_data .= $protocol->get_buffer();
         }
 
-        return $receive_data;
+        //读取完整消息
+        $this->receive_data = $protocol->getInData();
+        console('receive over....'.$this->receive_data,'receive');
 
+        return $this->receive_data;
     }
 
 }

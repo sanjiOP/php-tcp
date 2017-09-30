@@ -1,9 +1,8 @@
 <?php
 namespace protocol\client;
 
-use protocol\protocol;
 
-class tcp extends protocol
+class tcp extends clientProtocol
 {
 
 
@@ -35,24 +34,42 @@ class tcp extends protocol
 	}
 
 
-
-
     /**
-     * 是否继续读取buffer
+     * 只读一次输入：
+     * 如果内容长度超过缓冲区长度，则截取舍弃
      * @param string $buffer
-     * @return mixed
+     * @return bool false:不需要继续接收消息 ，true:继续接收消息
      * @author liu.bin 2017/9/29 14:37
      */
-    public function on_read_buffer($buffer = '')
+    public function read_buffer($buffer = '')
     {
-        $length = strlen($buffer);
+
+
+        //消息格式不正确
+        if(empty($buffer)){
+            $this->over();
+            return false;
+        }
+
+
+        //如果输入的字节 >= 最大长度的话，就不用输入数据,数据重置
+        if($this->in_size >= $this->max_in_length){
+            $this->over();
+            return false;
+        }
+
+        $this->buffer = $this->decode($buffer);
+        $length = strlen($this->buffer);
+
+
+        //如果输入的数据 > 缓冲区的长度 则截取
         if( $length > $this->buffer_size ){
-            $this->buffer = substr($buffer,0,$this->buffer_size);
+            $this->in_data = substr($this->buffer,0,$this->buffer_size);
+            $this->in_size = strlen($this->in_data);
         }else{
-            $this->buffer = $buffer;
+            $this->in_data = $this->buffer;
+            $this->in_size = strlen($this->buffer);
         }
         return false;
     }
-
-
 }

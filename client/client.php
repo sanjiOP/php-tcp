@@ -150,6 +150,9 @@ abstract class client extends socket
      * @author liu.bin 2017/9/27 15:02
      */
     public function send($data){
+
+        $protocol = $this->getProtocol();
+        $data = $protocol->encode($data);
         socket_write($this->socket,$data,strlen($data));
     }
 
@@ -172,15 +175,34 @@ abstract class client extends socket
 
     /**
      * 客户端接收服务端消息: socket_read
-     * 服务端接收客户端消息: socket_recv
+     * /////服务端接收客户端消息: socket_recv
      * @return string
      * @author liu.bin 2017/9/29 16:59
      */
     public function receive(){
-        $mess = socket_read($this->socket,1024);
-        $mess = empty($mess) ? '' : $mess;
-        $this->trigger(self::EVENT_RECEIVE,array($this,$mess));
-        return $mess;
+
+        $protocol = $this->getProtocol();
+        while(true){
+
+            //获取buffer_size ,固定包头+包体的协议中，buffer_size会变化；边界检测的协议，buffer_size固定
+            $buffer_size = $protocol->get_buffer_size();
+
+            //读取消息
+            $mess = socket_read($this->socket,$buffer_size);
+
+            if (empty($mess) || $mess === '' || $mess === false) {
+                break;
+            }
+
+            //是否继续接收消息:true 继续读取，false:读取结束
+            if(!$protocol->read_buffer($mess)){
+                break;
+            }
+
+        }
+        $receive_data = $protocol->getInData();
+        $this->trigger(self::EVENT_RECEIVE,array($this,$receive_data));
+        return true;
     }
 
 
