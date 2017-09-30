@@ -7,17 +7,11 @@ abstract class protocol extends error
 {
 
 	
-	//接收客户端消息
-	protected $receive_data = '';
-	
 	//缓冲区数据
 	protected $buffer = '';
 	
 	//读取缓冲区大小,如果采用 package_eof 边界符协议，则缓冲区最小需要大于 package_eof长度，否则永远读不到完成数据
 	protected $buffer_size = 10;
-	
-	//客户端是否退出
-	protected $logout_flag = false;
 	
 	
 	
@@ -31,18 +25,32 @@ abstract class protocol extends error
 
 
     /**
-     * 数据输入
-     * @param $socket resource 客户端socket
-     * @return bool|string
+     * 获取buffer size
+     * @author liu.bin 2017/9/29 13:37
      */
-	abstract public function input($socket=null);
+	public function get_buffer_size(){
+	    return $this->buffer_size;
+    }
 
 
+    /**
+     * 读取buffer
+     * @author liu.bin 2017/9/29 14:42
+     */
+    public function get_buffer(){
+        $buffer = $this->decode($this->buffer);
+        $this->buffer = '';
+	    return $buffer;
+    }
 
-	/**
-	 * 数据输出
-	 */
-	abstract public function output();
+
+    /**
+     * 是否继续读取buffer
+     * @param string $buffer
+     * @return mixed
+     * @author liu.bin 2017/9/29 14:37
+     */
+    abstract public function on_read_buffer($buffer='');
 
 
     /**
@@ -50,7 +58,7 @@ abstract class protocol extends error
      * @param $buffer string
      * @return string
      * */
-    abstract protected function decode($buffer);
+    abstract public function decode($buffer);
 
 
 
@@ -59,7 +67,7 @@ abstract class protocol extends error
      * @param $buffer string
      * @return string
      * */
-    abstract protected function encode($buffer);
+    abstract public function encode($buffer);
 	
 	
 }

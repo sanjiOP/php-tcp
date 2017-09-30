@@ -11,7 +11,7 @@ $dir = dirname(__DIR__);
 require $dir . '/rua/rua.php';
 
 // tcp服务器
-$server = rua::server('tcp_server','127.0.0.1',5000);
+$server = rua::server('text_server','127.0.0.1',5000);
 
 
 /**
@@ -27,6 +27,7 @@ $server->on('start',function ($server){
  */
 $server->on('connect',function ($server, $fd){
     console('client connect : 【' . $fd.'】');
+    $server->send('hello : '.$fd,$fd);
 });
 
 
@@ -34,7 +35,10 @@ $server->on('connect',function ($server, $fd){
  * 客户端接收消息
  */
 $server->on('receive',function ($server, $fd, $data){
-    console('【' . $fd . '】 say : ' . $data);
+    console('send data : ' . $data);
+    $data = $server->getProtocol()->encode($data);
+    $server->send('say : ' . $data,$fd);
+
 });
 
 

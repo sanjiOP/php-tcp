@@ -8,6 +8,7 @@
 namespace server\connect;
 
 use rua\base\socket;
+use server\server;
 
 class connect extends socket {
 
@@ -22,13 +23,39 @@ class connect extends socket {
     const STATUS_CLOSE = 3;
 
 
+    private $server;
+
 
     //当前连接状态
     private $status;
 
 
+    //接收客户端消息
+    protected $receive_data = '';
+
+
     /**
-     * 获取
+     * @param server $server
+     * connect constructor.
+     */
+    public function __construct($server)
+    {
+        $this->server = $server;
+        $this->create($this->server->getSocket());
+    }
+
+
+    /**
+     * 获取服务端server对象
+     * @author liu.bin 2017/9/29 13:27
+     */
+    public function getServer(){
+        return $this->server;
+    }
+
+
+    /**
+     * 获取连接状态
      * @return integer
      * @author liu.bin 2017/9/28 14:21
      */
@@ -47,6 +74,38 @@ class connect extends socket {
     }
 
 
+    /**
+     * 接收客户端消息
+     * @author liu.bin 2017/9/29 13:24
+     */
+    public function receive(){
+
+        $protocol = $this->server->getProtocol();
+        $buffer_size = $protocol->get_buffer_size();
+        $receive_data = '';
+        $end = false;
+
+        while(!$end){
+
+            //读取消息
+            socket_recv($this->socket,$buffer,$buffer_size,0);
+
+            if (empty($buffer) || $buffer === '' || $buffer === false) {
+                $this->setStatus(self::STATUS_CLOSE);
+                $end = true;
+            }
+
+            //是否继续接收消息
+            if(!$protocol->on_read_buffer($buffer)){
+                $end = true;
+            }
+            //读取完整消息
+            $receive_data .= $protocol->get_buffer();
+        }
+
+        return $receive_data;
+
+    }
 
 }
 

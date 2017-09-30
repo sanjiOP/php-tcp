@@ -72,6 +72,7 @@ class queue {
     private static $task_limit = 10;
 
 
+
     /**
      * 在活动队列末尾增加一个元素，如果超出则添加到等待队列
      * 保证队列元素唯一性
@@ -86,17 +87,17 @@ class queue {
         }
 
 
-        $key = $conn->getId();
-        if(empty($key)){
+        $fd = $conn->getId();
+        if(empty($fd)){
             return false;
         }
 
         //添加到活动队列
         if(self::$active_count < self::$active_limit){
-            if(!isset(self::$active_list[$key]) || empty(self::$active_list[$key]) ){
-                self::$active_list[$key] = $conn;
+            if(!isset(self::$active_list[$fd]) || empty(self::$active_list[$fd]) ){
+                self::$active_list[$fd] = $conn;
                 self::$active_count++;
-                self::$sockets[$key] = $conn->getSocket();
+                self::$sockets[$fd] = $conn->getSocket();
                 $conn->setStatus(connect::STATUS_ACTIVE);
             }
             return true;
@@ -104,8 +105,8 @@ class queue {
 
         //添加到等待队列
         if((self::$active_count >= self::$active_limit) && (self::$task_count < self::$task_limit)){
-            if(!isset(self::$task_list[$key]) || empty(self::$task_list[$key])){
-                self::$task_list[$key] = $conn;
+            if(!isset(self::$task_list[$fd]) || empty(self::$task_list[$fd])){
+                self::$task_list[$fd] = $conn;
                 self::$task_count++;
                 $conn->setStatus(connect::STATUS_TASK);
             }
@@ -129,14 +130,14 @@ class queue {
             return false;
         }
 
-        $key = $server->getId();
-        if(empty($key)){
+        $fd = $server->getId();
+        if(empty($fd)){
             return false;
         }
 
 
-        self::$active_list[$key] = $server;
-        self::$sockets[$key] = $server->getSocket();
+        self::$active_list[$fd] = $server;
+        self::$sockets[$fd] = $server->getSocket();
 
     }
 
@@ -154,27 +155,50 @@ class queue {
             return false;
         }
 
-        $key = $conn->getId();
-        if(empty($key)){
+        $fd = $conn->getId();
+        if(empty($fd)){
             return false;
         }
         //从活动列表中删除
-        if( isset(self::$active_list[$key]) && self::$active_list[$key] ){
+        if( isset(self::$active_list[$fd]) && self::$active_list[$fd] ){
             //$conn->setStatus(connect::STATUS_CLOSE);
             unset($conn);
-            unset(self::$active_list[$key]);
-            unset(self::$sockets[$key]);
+            unset(self::$active_list[$fd]);
+            unset(self::$sockets[$fd]);
             self::$active_count--;
             return true;
         }
         //从等待列表中删除
-        if( isset(self::$task_list[$key]) && self::$task_list[$key] ){
+        if( isset(self::$task_list[$fd]) && self::$task_list[$fd] ){
             //$conn->setStatus(connect::STATUS_CLOSE);
             unset($conn);
-            unset(self::$task_list[$key]);
+            unset(self::$task_list[$fd]);
             self::$task_count--;
             return true;
         }
+
+    }
+
+
+    /**
+     * 通过fd,查找connect
+     * @param $fd
+     * @return connect|bool
+     * @author liu.bin 2017/9/29 16:17
+     */
+    public static function findConnByFd($fd){
+
+        //从活动列表中查找
+        if( isset(self::$active_list[$fd]) && self::$active_list[$fd] ){
+            return self::$active_list[$fd];
+        }
+
+        //从等待列表中删除
+        if( isset(self::$task_list[$fd]) && self::$task_list[$fd] ){
+            return self::$task_list[$fd];
+        }
+
+        return false;
 
     }
 
@@ -187,38 +211,13 @@ class queue {
      * @author liu.bin 2017/9/28 14:55
      */
     public static function findConnBySocket($socket){
-
-        $key = socket_id($socket);
-        if(empty($key)){
+        $fd = socket_to_fd($socket);
+        if(empty($fd)){
             return false;
         }
-
-        //从活动列表中查找
-        if( isset(self::$active_list[$key]) && self::$active_list[$key] ){
-            return self::$active_list[$key];
-        }
-
-        //从等待列表中删除
-        if( isset(self::$task_list[$key]) && self::$task_list[$key] ){
-            return self::$task_list[$key];
-        }
-
-        return false;
+        return static::findConnByFd($fd);
     }
 
-
-
-
-    /**
-     * 重置所有的活动 socket
-     * @author liu.bin 2017/9/28 15:22
-     */
-    public static function init_sockets(){
-        self::$sockets = array();
-        foreach (self::$active_list as $conn){
-            self::$sockets[] = $conn->getSocket();
-        }
-    }
 
 
     /**
