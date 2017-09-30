@@ -46,7 +46,7 @@ class text_server extends server {
         echo "----------------------- RUA SOCKET SERVER -----------------------------".PHP_EOL;
         echo "Rua Server version:" . self::VERSION .PHP_EOL;
         echo "PHP version:" . PHP_VERSION .PHP_EOL;
-        echo "socket listen ".$this->host. ":" .$this->port ." status [ok]".PHP_EOL;
+        echo "socket listen text://".$this->host. ":" .$this->port ." status [ok]".PHP_EOL;
         echo "----------------------------------------------------------------".PHP_EOL;
         echo "Press Ctrl-C to quit. Start success.".PHP_EOL;
     }

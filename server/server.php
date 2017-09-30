@@ -238,8 +238,14 @@ abstract class server extends socket {
      * @author liu.bin 2017/9/27 15:02
      */
     public function send($data,$fd){
+
+        $protocol = $this->getProtocol();
+        $data = $protocol->encode($data);
         $connect = queue::findConnByFd($fd);
         if($connect){
+
+            console('send data protocol:' . $data);
+
             socket_write($connect->getSocket(),$data,strlen($data));
             return true;
         }

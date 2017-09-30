@@ -27,7 +27,8 @@ $server->on('start',function ($server){
  */
 $server->on('connect',function ($server, $fd){
     console('client connect : 【' . $fd.'】');
-    $server->send('hello : '.$fd,$fd);
+    $mess = 'hello momo:'.$fd;
+    $server->send($mess,$fd);
 });
 
 
@@ -36,7 +37,6 @@ $server->on('connect',function ($server, $fd){
  */
 $server->on('receive',function ($server, $fd, $data){
     console('send data : ' . $data);
-    $data = $server->getProtocol()->encode($data);
     $server->send('say : ' . $data,$fd);
 
 });

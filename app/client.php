@@ -26,7 +26,7 @@ $client->on('start',function ($client){
  * 客户端连接
  */
 $client->on('connect',function ($client){
-    console('client connect : 【' . $client.'】','client');
+    console('client connect : 【' . $client.'】','connect');
 });
 
 
@@ -35,7 +35,7 @@ $client->on('connect',function ($client){
  * 客户端接收消息
  */
 $client->on('receive',function ($client, $data){
-    console('【' . $client . '】 say : ' . $data,'client');
+    console('【' . $client . '】 say : ' . $data,'receive');
 });
 
 
@@ -51,40 +51,45 @@ $connect = $client->connect('127.0.0.1',5000);
 
 $protocol = $client->getProtocol();
 
+$receive = true;
+
 
 while ($connect){
 
 
     //连接成功后，接收消息
-    $client->receive();
+    if($receive){
+        $client->receive();
+    }
 
+    console('==============手动输入===============');
     $buffer_size = $protocol->get_buffer_size();
-    $send_data = '';
 
-    $end = false;//是否继续输入
+    while(true){
 
-    while(!$end){
 
-        //此处阻塞
+        $buffer_size = $protocol->get_buffer_size();
+
+        //此处阻塞，用户输入的时候，最后需要输入/r/n结束，在read_buffer中，会删除/r/n，在最后send的时候，会添加上/r/n
         $buffer = fgets(STDIN);
-
         if ($buffer === '' || $buffer === false) {
             break;
         }
 
-        //是否继续输入消息
-        if(!$protocol->on_read_buffer($buffer)){
-            $end = true;
-        }
 
-        //读取完整消息
-        $send_data .= $protocol->get_buffer();
+        //是否继续接收消息:true 继续读取，false:读取结束
+        if(!$protocol->read_buffer($buffer)){
+            break;
+        }
     }
 
-
+    $send_data = $protocol->getInData();
     if($send_data){
-        $send_data = $protocol->encode($send_data);
+        console('马上 send：' .$send_data);
         $client->send($send_data);
+    }else{
+        console('马上 send ?? ：' .$send_data);
+        $receive = false;
     }
 
 }
